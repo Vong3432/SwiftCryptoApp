@@ -21,6 +21,9 @@ struct HomeView: View {
             // content layer
             VStack {
                 homeHeader
+                
+                SearchBarView(searchText: $vm.searchText)
+                
                 columsTitle
                 if !showPortfolio {
                     allCoinsList
@@ -33,6 +36,8 @@ struct HomeView: View {
                 }
                 
                 Spacer(minLength: 0)
+            }.onTapGesture {
+                UIApplication.shared.endEditing()
             }
         }
     }
@@ -44,7 +49,7 @@ struct HomeView_Previews: PreviewProvider {
             HomeView()
                 .navigationBarHidden(true)
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .environmentObject(dev.homeVM)
     }
 }
