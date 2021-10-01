@@ -24,10 +24,28 @@ class HomeViewModel: ObservableObject {
     }
     
     func addSubsribers() {
-        dataService.$allCoins.sink { [weak self] (returnCoins) in
-            self?.allCoins = returnCoins
+        // will receive updated value every time serachText or dataService.allCoins is changed
+        $searchText
+            .combineLatest(dataService.$allCoins)
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main) // wait 0.5 seconds
+            .map(filterCoins)
+            .sink { [weak self] (returnedCoins) in
+                self?.allCoins = returnedCoins
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func filterCoins(text:String, coins: [Coin]) -> [Coin] {
+        guard !text.isEmpty else { return coins }
+        
+        let loweredCasedText = text.lowercased()
+        let filteredCoins = coins.filter { (coin) in
+            return coin.name.lowercased().contains(loweredCasedText)
+            || coin.symbol.lowercased().contains(loweredCasedText)
+            || coin.id.lowercased().contains(loweredCasedText)
         }
-        .store(in: &cancellables)
+        
+        return filteredCoins
     }
     
 }
